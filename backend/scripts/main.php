@@ -2,7 +2,6 @@
 require __DIR__ . '../../vendor/autoload.php';
 session_start();
 use Palmo\source\Db;
-// use Palmo\Core\service\Db;
 
 // Обробка форми входу
 if($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -17,18 +16,22 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         $user = $stmt->fetch();
 
         if(!empty($user)) {
-            if($password === $user['password']) {
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+            //перевірка чи відповідає введений пароль хешу-пароля в БД
+            if (password_verify($password, $user['password'])) {
+                //зберігання інформації про користувача у сесії
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
+                $_SESSION['email'] = $user['email'];
                 header("Location: dashboard.php");
                 exit();
             } else {
-                $_SESSION['error'] = "Невірний пароль";
+                $_SESSION['error'] = "Invalid password";
                 header("Location: /");
                 exit();
             }
         } else {
-            $_SESSION['error'] = "Невірний логін";
+            $_SESSION['error'] = "Invalid login";
             header("Location: /");
             exit();
         }

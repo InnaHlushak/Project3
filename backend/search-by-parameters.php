@@ -1,4 +1,11 @@
 <?php
+    // Редірект на сторінку home.php
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['home'])) {
+        header('Location: home.php');
+        exit();
+    }
+?>
+<?php
     require __DIR__ . '/vendor/autoload.php';
 
     use Palmo\source\search\ItemsByParams;
@@ -9,8 +16,12 @@
     $mediaRepository = new MediaRepository();
     $medias = $mediaRepository->getMedia();
 
-    //Пагінація (кількість сторінок)
-    $total_pages = $foundItems->getPages();
+    //Пагінація 
+    $total_pages = $foundItems->getPages(); //кількість сторінок пагінатора
+    $current_page = $_POST['page'] ?? 1; // поточна сторінка пагінатора
+    $max_show = 3; // кількість сторінок пагінатора, які відображаються спочатку
+
+
 ?>
 
 <!DOCTYPE html>
@@ -33,7 +44,9 @@
                 <img  src="../assets/favicon-NASA.png" alt="logo NASA" width="30px" height="30px">
                 <a href="https://apod.nasa.gov/apod/astropix.html" target="_blank">Astronomy Picture of the Day</a>
             </p>          
-            <p><a href="home.php">HOME</a></p>
+            <form method="POST">
+                <button type="submit" name="home" class="styleButton">HOME</button>
+            </form>
         </header>
         <main class="main-container">
             <h2>Search by custom parameters</h2>
@@ -43,29 +56,35 @@
                 <form method="POST" enctype="multipart/form-data">
                         <div>  
                             <label for="startDate">From date:</label>
-                            <input type="date" id="startDate" name="start_date"/>
+                            <input type="date" id="startDate" name="start_date"
+                                value="<?= htmlspecialchars($_POST['start_date'] ?? '') ?>"
+                            />
                             <label for="endDate">To date:</label>
-                            <input type="date" id="endDate" name="end_date"/>
+                            <input type="date" id="endDate" name="end_date"
+                                value="<?= htmlspecialchars($_POST['end_date'] ?? '') ?>"
+                            />
                         </div>
                         <div>
                             <label for="title">Title:</label>
-                            <input type="text" id="title" name="title"> 
+                            <input type="text" id="title" name="title"
+                                value="<?= htmlspecialchars($_POST['title'] ?? '') ?>"
+                            /> 
                         </div>
                         <div>
                             <label for="explanation">Explanation:</label><br>
-                            <textarea id="explanation" name="explanation" rows="4" cols="50" placeholder="Enter an explanation fragment..."></textarea>
+                            <textarea id="explanation" name="explanation" rows="4" cols="50" placeholder="Enter an explanation fragment..."><?= htmlspecialchars($_POST['explanation'] ?? '') ?></textarea>
                         </div>
                         <div>
                             <fieldset style="border: 1px solid #ccc; padding: 10px; display: inline-flex; align-items: center ; gap: 10px;">
                                 <legend>Media type: </legend>
                                 <label>
-                                    <input type="radio" name="media" value="both" checked> Both types
+                                    <input type="radio" name="media" value="both" <?= ($_POST['media'] ?? 'both') === 'both' ? 'checked' : '' ?>> Both types
                                 </label>
                                 <label>
-                                    <input type="radio" name="media" value="image"> Image
+                                    <input type="radio" name="media" value="image" <?= ($_POST['media'] ?? '') === 'image' ? 'checked' : '' ?>> Image
                                 </label>
                                 <label>
-                                    <input type="radio"  name="media" value="video"> Video
+                                    <input type="radio"  name="media" value="video" <?= ($_POST['media'] ?? '') === 'video' ? 'checked' : '' ?>> Video
                                 </label>
                             </fieldset>
                         </div>                        
@@ -136,13 +155,43 @@
             </div>
             <!-- Пагінатор -->           
             <form method="POST" action="" class="pagination-form">
-                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                    <button type="submit" name="page" value="<?= $i ?>" 
-                        <?= ($i == ($_POST['page'] ?? 1)) ? 'disabled' : '' ?>
+                <!-- Показати перші сторінки -->
+                <?php for ($i = 1; $i <= $max_show; $i++): ?>
+                    <button type="submit" name="page" value="<?= $i ?>"
+                        <?= ($i == $current_page) ? 'disabled' : '' ?>
                     >
                         <?= $i ?>
                     </button>
-                    <?php endfor; ?>
+                <?php endfor; ?>
+
+                <!-- Показати "..." якщо є проміжні сторінки між початком і поточним блоком -->
+                <?php if ($current_page > $max_show + 1): ?>
+                    <span>...</span>
+                <?php endif; ?>
+
+                <!-- Показати поточну сторінку з сусідніми, якщо вона не є початковою частиною -->
+                <?php for ($i = max($max_show + 1, $current_page - 1); $i <= min($total_pages - 1, $current_page + 1); $i++): ?>
+                    <button type="submit" name="page" value="<?= $i ?>"
+                        <?= ($i == $current_page) ? 'disabled' : '' ?>
+                    >
+                        <?= $i ?>
+                    </button>
+                <?php endfor; ?>
+
+                <!-- Показати "..." якщо є проміжні сторінки між кінцем і поточним блоком -->
+                <?php if ($current_page < $total_pages - 2): ?>
+                    <span>...</span>
+                <?php endif; ?>
+
+                <!-- Показати останню сторінку -->
+                <?php if ($total_pages > $max_show): ?>
+                    <button type="submit" name="page" value="<?= $total_pages ?>"
+                        <?= ($total_pages == $current_page) ? 'disabled' : '' ?>
+                    >
+                        <?= $total_pages ?>
+                    </button>
+                <?php endif; ?>
+
                 <!-- щоб значення параметрів фільтру залишалися  після переходу між сторінками-->
                 <input type="hidden" name="start_date" value="<?= htmlspecialchars($_POST['start_date'] ?? '') ?>">
                 <input type="hidden" name="end_date" value="<?= htmlspecialchars($_POST['end_date'] ?? '') ?>">

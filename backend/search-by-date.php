@@ -1,4 +1,12 @@
 <?php
+    // Редірект на сторінку home.php
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['home'])) {
+        header('Location: home.php');
+        exit();
+    }
+?>
+
+<?php
     require __DIR__ . '/vendor/autoload.php';
 
     use Palmo\source\search\ItemsByDate;
@@ -55,7 +63,9 @@
                 <img  src="../assets/favicon-NASA.png" alt="logo NASA" width="30px" height="30px">
                 <a href="https://apod.nasa.gov/apod/astropix.html" target="_blank">Astronomy Picture of the Day</a>
             </p>        
-            <p><a href="home.php">HOME</a></p>
+            <form method="POST">
+                <button type="submit" name="home" class="styleButton">HOME</button>
+            </form>
         </header>
         <main class="main-container">
             <h2>Search by date</h2>
@@ -66,6 +76,7 @@
                         <div>  
                             <label for="inputDate">Date:</label>
                             <input type="date" id="inputDate" name="date"
+                                value="<?= htmlspecialchars($_POST['date'] ?? '') ?>"
                                 <?= isset($errors['date']) ? 'class="invalid"' : '' ?> 
                             />
                             <input type="submit" value="Search" class="styleButton">

@@ -1,11 +1,17 @@
 <?php
+session_start();
+
+    // Редірект на сторінку home.php
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['home'])) {
+        header('Location: home.php');
+        exit();
+    }
+?>
+
+<?php
     require __DIR__ . '/vendor/autoload.php';
-    //session_start();
 
     use Palmo\source\validation\Validator;
-    use Palmo\source\validation\validators\StringValidator;
-    use Palmo\source\validation\validators\EmailValidator;
-    use Palmo\source\validation\validators\PasswordValidator;
     use Palmo\source\validation\validators\NumberValidator;
     use Palmo\source\validation\validators\FloatValidator;
     use Palmo\source\validation\validators\ArrayValidator;
@@ -15,24 +21,10 @@
 
     $errors = [];
     $data = [];
+    $successfully = '';
 
     if($_SERVER['REQUEST_METHOD'] === 'POST') {
         $validator = new Validator();
-
-        $data['username'] = [
-            'type' => 'string',
-            'data'=> $_POST['username'] ?? '',
-        ]; 
-
-        $data['email'] = [
-            'type' => 'email',
-            'data'=> $_POST['email'] ?? '',
-        ]; 
-
-        $data['password'] = [
-            'type' => 'password',
-            'data'=> $_POST['password'] ?? '',
-        ]; 
 
         $data['age'] = [
             'type' => 'number',
@@ -64,9 +56,6 @@
             'data'=> $_POST['confirm'],
         ];
 
-        $validator->addValidator('string', new StringValidator(3,15)); 
-        $validator->addValidator('email', new EmailValidator());
-        $validator->addValidator('password', new PasswordValidator(6));       
         $validator->addValidator('number', new NumberValidator(7,100));
         $validator->addValidator('float', new FloatValidator(0,24));
         $validator->addValidator('array', new ArrayValidator());
@@ -77,7 +66,7 @@
         $errors = $validator->validate($data);
 
         if(empty($errors)) {
-            echo "<h2> Data sent successfully!</h2>";
+            $successfully = 'Data sent successfully!';
         } 
     }
 ?>
@@ -93,6 +82,7 @@
         <style>
             .error {color: red;}
             .invalid {border: 1px solid red;}
+            .successfully {color: green;}
         </style>    
         <!-- Custom styles for this template -->
         <link href="css/styles.css" rel="stylesheet">   
@@ -103,38 +93,28 @@
                 <img  src="../assets/favicon-NASA.png" alt="logo NASA" width="30px" height="30px">
                 <a href="https://apod.nasa.gov/apod/astropix.html" target="_blank">Astronomy Picture of the Day</a>
             </p>          
-            <p><a href="home.php">HOME</a></p>
+            <form method="POST">
+                <button type="submit" name="home" class="styleButton">HOME</button>
+            </form>
         </header>
         <main class="main-container"></main>
             <h2>Profile</h2>
+            <p>Enter additional information about yourself:</p>
             <div class="wrapperInputsContainer"> 
                 <div class="inputsContainer">
                     <form method="POST" enctype="multipart/form-data" action=''>
                         <div>
                             <label for="username">Name:</label>
-                            <input type="text" id="username" name="username" required
-                                value="<?= htmlspecialchars($data['username']['data'] ?? '') ?>" 
-                                <?= isset($errors['username']) ? 'class="invalid"' : '' ?> 
+                            <input type="text" id="username" name="username"  disabled required
+                                value="<?= htmlspecialchars( $_SESSION['username']) ?>" 
                             />
-                            <?php if (isset($errors['username'])): ?><span class="error"><?= $errors['username'] ?></span><?php endif; ?>
                         </div>
                         <br>                    
                         <div>
                             <label for="email">E-mail:</label>
-                            <input type="email" id="password" name="email" required
-                                value="<?= htmlspecialchars($data['email']['data'] ?? '') ?>" 
-                                <?= isset($errors['email']) ? 'class="invalid"' : '' ?> 
+                            <input type="email" id="email" name="email"  disabled required
+                                value="<?= htmlspecialchars($_SESSION['email']) ?>" 
                             />
-                            <?php if (isset($errors['email'])): ?><span class="error"><?= $errors['email'] ?></span><?php endif; ?>
-                        </div>
-                        <br>
-                        <div>
-                            <label for="password">Password:</label>
-                            <input type="password" id="password" name="password" required
-                                value="<?= htmlspecialchars($data['password']['data'] ?? '') ?>" 
-                                <?= isset($errors['password']) ? 'class="invalid"' : '' ?> 
-                            />
-                            <?php if (isset($errors['password'])): ?><span class="error"><?= $errors['password'] ?></span><?php endif; ?>
                         </div>
                         <br>
                         <div>
@@ -198,8 +178,8 @@
                             <label for="confirm">I confirm that all data is correct</label>
                             <?php if (isset($errors['confirm'])): ?><span class="error"><?= $errors['confirm'] ?></span><?php endif; ?>
                         </div> 
-
                         <input type="submit" value="Submit" class="styleButton">
+                        <p class="successfully"><?= $successfully ?></p>
                     </form>
                 </div>
             </div>    

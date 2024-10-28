@@ -8,57 +8,68 @@
         exit();
     }
 ?>
+<?php
+    // Редірект на сторінку register-user.php
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
+        header('Location: register-user.php');
+        exit();
+    }
+?>
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>Backend</title>
-    <base href="/">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/x-icon" href="./favicon.ico">
-    <link rel="canonical" href="https://getbootstrap.com/docs/5.1/examples/checkout/">
-    <!-- Bootstrap core CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <head>
+        <meta charset="utf-8">
+        <title>Register User</title>
+        <base href="/">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/x-icon" href="./favicon.ico">
+        <style>
+            .error {color: red;}
+            .invalid {border: 1px solid red;}
+        </style>    
+        <!-- Custom styles for this template -->
+        <link href="css/styles.css" rel="stylesheet">   
+    </head>
+    <body> 
+        <header class="header-container">        
+            <p>
+                <img  src="../assets/favicon-NASA.png" alt="logo NASA" width="30px" height="30px">
+                <a href="https://apod.nasa.gov/apod/astropix.html" target="_blank">Astronomy Picture of the Day</a>
+            </p>          
+            <form method="POST">
+                <button type="submit" name="register" class="styleButton">Sign Up</button>
+            </form>
+        </header>
+        <main class="main-container">
+            <section class="containerIntrodaction">
+                <h2>Discover<span class="containerIntrodaction-h1-span">the cosmos!</span></h2>
 
-    <style>
-        .bd-placeholder-img {
-            font-size: 1.125rem;
-            text-anchor: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            user-select: none;
-        }
-
-        @media (min-width: 768px) {
-            .bd-placeholder-img-lg {
-                font-size: 3.5rem;
-            }
-        }
-    </style>
-
-
-    <!-- Custom styles for this template -->
-    <link href="css/form-validation.css" rel="stylesheet">
-</head>
-<body>
-<h2>Вхід</h2>
-
-<?php
-// Вивід помилок
-if(isset($_SESSION['error'])) {
-    $error = $_SESSION['error'];
-    echo "<p style='color:red;'>$error</p>";
-}
-?>
-
-<form method="POST" action="scripts/main.php">
-    <label for="username">Логін:</label>
-    <input type="text" id="username" name="username" required><br>
-
-    <label for="password">Пароль:</label>
-    <input type="password" id="password" name="password" required><br>
-
-    <input type="submit" value="Увійти">
-</form>
-</body>
+                <div class="inputsContainer">
+                    <!-- Форма реєстрації  -->
+                    <form method="POST" action="scripts/main.php">
+                        <div>
+                            <label for="username">Name:</label>
+                            <input type="text" id="username" name="username" required/>
+                        </div>
+                        <br>                    
+                        <div>
+                            <label for="password">Password:</label>
+                            <input type="password" id="password" name="password" required/>
+                        </div>
+                        <div>
+                            <!-- Вивід помилок -->
+                            <?php
+                            if(isset($_SESSION['error'])) {
+                                $error = $_SESSION['error'];
+                                echo "<p style='color:red;'>$error</p>";
+                            }
+                            ?>
+                        </div>
+                        <br>
+                        <input type="submit" value="Login" class="styleButton">
+                    </form>
+                </div>
+            </section>
+        </main>            
+    </body>
 </html>

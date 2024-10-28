@@ -6,11 +6,12 @@ if(!isset($_SESSION['user_id'])) {
     header("Location: /");
     session_destroy();
     exit();
+} else {
+    // Отримання ID користувача
+    $userID = $_SESSION['user_id'];
+    $name = $_SESSION['username'];
+    header("Location: /home.php");
 }
-
-// Отримання ID користувача
-$userID = $_SESSION['user_id'];
-$name = $_SESSION['username'];
 ?>
 
 <!DOCTYPE html>
@@ -22,9 +23,6 @@ $name = $_SESSION['username'];
 </head>
 <body>
 
-<h2>Ласкаво просимо, користуваче <?php echo $name; ?>!</h2>
-
-<a href="logout.php">Вийти</a>
-
+<h2>Hello, <?php echo $name; ?>!</h2>
 </body>
 </html>

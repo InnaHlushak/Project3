@@ -24,7 +24,7 @@ private $minLength;
         }
 
         if(!(preg_match('/[A-Z]/', $value)) || !(preg_match('/\d/', $value))) {
-            $this->errorMessage = "The password must contain at least at least one capital letter and at least one number";
+            $this->errorMessage = "The password must contain at least one capital letter and at least one number";
             return false;
         }
 

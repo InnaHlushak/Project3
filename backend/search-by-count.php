@@ -1,4 +1,12 @@
 <?php
+    // Редірект на сторінку home.php
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['home'])) {
+        header('Location: home.php');
+        exit();
+    }
+?>
+
+<?php
     require __DIR__ . '/vendor/autoload.php';
 
     use Palmo\source\search\ItemsByCount;
@@ -18,25 +26,27 @@
              'data'=> $_POST['count'] ?? '',
          ]; 
  
-         $max = 10;
+         $max = 20;
          $validator->addValidator('number', new NumberValidator(1, $max));
  
          $errors = $validator->validate($data);
      }
 
      $items = [];
-     $total_pages = '';
+     $total_pages = 1; //кількість сторінок пагінатора
+     $current_page = $_POST['page'] ?? 1; // поточна сторінка пагінатора
+     $max_show = 3; // кількість сторінок пагінатора, які відображаються спочатку
 
-     //Якщо валідація пройшла успішно
+      //Якщо валідація пройшла успішно
      if (empty($errors)) { 
         //за введеними параметрами отримати відфільтровані дані    
         $foundItems  = new ItemsByCount(); 
         $items = $foundItems->getItems();
         $mediaRepository = new MediaRepository();
         $medias = $mediaRepository->getMedia();
-        //кількість сторінок пагінатора
+        //перелбчислити кількість сторінок пагінатора
         $total_pages = $foundItems->getPages();
-    } 
+    }
 ?>
 
 <!DOCTYPE html>
@@ -59,14 +69,16 @@
                 <img  src="../assets/favicon-NASA.png" alt="logo NASA" width="30px" height="30px">
                 <a href="https://apod.nasa.gov/apod/astropix.html" target="_blank">Astronomy Picture of the Day</a>
             </p>          
-            <p><a href="home.php">HOME</a></p>
+            <form method="POST">
+                <button type="submit" name="home" class="styleButton">HOME</button>
+            </form>
         </header>
         <main class="main-container">
             <h2>Random search by count</h2>
             <!-- Форма для введення параметрів для пошуку -->
             <div class="wrapperInputsContainer"> 
                 <div class="inputsContainer">
-                    <form method="POST" enctype="multipart/form-data">
+                    <form method="POST" enctype="multipart/form-data" action="">
                         <div>  
                             <label for="count">Count for random selection:</label>
                             <input type="number" id="count" name="count" 
@@ -139,15 +151,46 @@
                     </div>
                 <?php }; ?>   
             </div>
+            
             <!-- Пагінатор -->           
             <form method="POST" action="" class="pagination-form">
-                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                    <button type="submit" name="page" value="<?= $i ?>" class="paginationButton"
-                        <?= ($i == ($_POST['page'] ?? 1)) ? 'disabled' : '' ?>
+                <!-- Показати перші сторінки -->
+                <?php for ($i = 1; $i <= $max_show; $i++): ?>
+                    <button type="submit" name="page" value="<?= $i ?>"
+                        <?= ($i == $current_page) ? 'disabled' : '' ?>
                     >
                         <?= $i ?>
                     </button>
-                    <?php endfor; ?>
+                <?php endfor; ?>
+
+                <!-- Показати "..." якщо є проміжні сторінки між початком і поточним блоком -->
+                <?php if ($current_page > $max_show + 1): ?>
+                    <span>...</span>
+                <?php endif; ?>
+
+                <!-- Показати поточну сторінку з сусідніми, якщо вона не є початковою частиною -->
+                <?php for ($i = max($max_show + 1, $current_page - 1); $i <= min($total_pages - 1, $current_page + 1); $i++): ?>
+                    <button type="submit" name="page" value="<?= $i ?>"
+                        <?= ($i == $current_page) ? 'disabled' : '' ?>
+                    >
+                        <?= $i ?>
+                    </button>
+                <?php endfor; ?>
+
+                <!-- Показати "..." якщо є проміжні сторінки між кінцем і поточним блоком -->
+                <?php if ($current_page < $total_pages - 2): ?>
+                    <span>...</span>
+                <?php endif; ?>
+
+                <!-- Показати останню сторінку -->
+                <?php if ($total_pages > $max_show): ?>
+                    <button type="submit" name="page" value="<?= $total_pages ?>"
+                        <?= ($total_pages == $current_page) ? 'disabled' : '' ?>
+                    >
+                        <?= $total_pages ?>
+                    </button>
+                <?php endif; ?>
+
                 <!-- Значення фільтра count передається як приховане поле, щоб фільтр залишався активним після переходу між сторінками-->
                 <input type="hidden" name="count" value="<?= htmlspecialchars($_POST['count'] ?? '') ?>">
             </form>
