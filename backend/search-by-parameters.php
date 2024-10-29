@@ -1,7 +1,7 @@
 <?php
-    // Редірект на сторінку home.php
+    // Редірект на стартову сторінку index.php
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['home'])) {
-        header('Location: home.php');
+        header('Location: /');
         exit();
     }
 ?>
@@ -19,7 +19,7 @@
     //Пагінація 
     $total_pages = $foundItems->getPages(); //кількість сторінок пагінатора
     $current_page = $_POST['page'] ?? 1; // поточна сторінка пагінатора
-    $max_show = 3; // кількість сторінок пагінатора, які відображаються спочатку
+    $max_show = min(3,$total_pages); // кількість сторінок пагінатора, які відображаються спочатку
 
 
 ?>

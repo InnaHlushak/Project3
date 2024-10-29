@@ -1,6 +1,21 @@
 <?php
+    session_start();    
+
+    // Редірект на  сторінку login-user.php
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
+        header('Location: /login-user.php');
+        exit();
+    }
+
+    // Редірект на  стартову сторінку index.php
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['home'])) {
+        header('Location: /');
+        exit();
+    }
+?>
+
+<?php
     require __DIR__ . '/vendor/autoload.php';
-    session_start();
 
     use Palmo\source\Db;
     use Palmo\source\validation\Validator;
@@ -11,6 +26,7 @@
     //Валідація даних із форми реєстрації
     $errors = [];
     $data = [];
+    $successfully = '';
 
     if($_SERVER['REQUEST_METHOD'] === 'POST') {
         $validator = new Validator();
@@ -68,9 +84,7 @@
                 $stmt2->bindParam(':created_at', $created_at);
                 $stmt2->execute();
 
-                //перенаправити на стартову сторінку (щоб кристувач залогінився)
-                header("Location: /");
-                exit();
+                $successfully = 'You are successfully registered! Go to the Sign In page and re-enter your name and password';                
             }
         } 
     }
@@ -87,6 +101,7 @@
         <style>
             .error {color: red;}
             .invalid {border: 1px solid red;}
+            .successfully {color: green;}
         </style>    
         <!-- Custom styles for this template -->
         <link href="css/styles.css" rel="stylesheet">   
@@ -96,19 +111,23 @@
             <p>
                 <img  src="../assets/favicon-NASA.png" alt="logo NASA" width="30px" height="30px">
                 <a href="https://apod.nasa.gov/apod/astropix.html" target="_blank">Astronomy Picture of the Day</a>
-            </p>          
+            </p>
+            <form method="POST">
+                <button type="submit" name="login" class="styleButton">Sign In</button>
+                <button type="submit" name="home" class="styleButton">HOME</button>
+            </form>
         </header>
-        <main class="main-container"></main>
-            <h2>Register user</h2>
-
-            <?php
-            // Вивід помилок
-            if (isset($error)) {
-                echo "<p style='color:red;'>$error</p>";
-            }
-            ?>
+        <main class="main-container">
+            <section class="containerIntrodaction">
+                <h2>User registration </h2>
+                
+                <?php
+                // Вивід помилок
+                if (isset($error)) {
+                    echo "<p style='color:red;'>$error</p>";
+                }
+                ?>
             
-            <div class="wrapperInputsContainer"> 
                 <div class="inputsContainer">
                     <form method="POST" enctype="multipart/form-data" action=''>
                         <div>
@@ -138,11 +157,11 @@
                             <?php if (isset($errors['password'])): ?><span class="error"><?= $errors['password'] ?></span><?php endif; ?>
                         </div>
                         <br>
-
                         <input type="submit" value="SignUp" class="styleButton">
+                        <p class="successfully"><?= $successfully ?></p>
                     </form>
                 </div>
-            </div>    
+            </section>
         </main>
     </body>
 </html>

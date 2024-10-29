@@ -1,7 +1,7 @@
 <?php
-    // Редірект на сторінку home.php
+    // Редірект на  стартову сторінку index.php
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['home'])) {
-        header('Location: home.php');
+        header('Location: /');
         exit();
     }
 ?>
