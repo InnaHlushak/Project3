@@ -1,6 +1,18 @@
 <?php
 session_start();
+    //отримання значень username i email із кукі/сесії
+    if (isset($_COOKIE['username'])) {
+        $username = $_COOKIE['username'];
+    } else {
+        $username = $_SESSION['username'] ?? '';
+    }
 
+    if (isset($_COOKIE['email'])) {
+        $email = $_COOKIE['email'];
+    } else {
+        $email = $_SESSION['email'] ?? '';
+    }
+ 
     // Редірект на сторінку home.php
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['home'])) {
         header('Location: home.php');
@@ -10,8 +22,10 @@ session_start();
 
 <?php
     require __DIR__ . '/vendor/autoload.php';
-
+    //валідація даних отриманих із форми
     use Palmo\source\validation\Validator;
+    use Palmo\source\validation\validators\StringValidator;
+    use Palmo\source\validation\validators\EmailValidator;
     use Palmo\source\validation\validators\NumberValidator;
     use Palmo\source\validation\validators\FloatValidator;
     use Palmo\source\validation\validators\ArrayValidator;
@@ -25,6 +39,16 @@ session_start();
 
     if($_SERVER['REQUEST_METHOD'] === 'POST') {
         $validator = new Validator();
+
+        $data['username'] = [
+            'type' => 'string',
+            'data'=>  $username,
+        ]; 
+
+        $data['email'] = [
+            'type' => 'email',
+            'data'=> $email,
+        ]; 
 
         $data['age'] = [
             'type' => 'number',
@@ -56,6 +80,8 @@ session_start();
             'data'=> $_POST['confirm'],
         ];
 
+        $validator->addValidator('string', new StringValidator(3,15)); 
+        $validator->addValidator('email', new EmailValidator());
         $validator->addValidator('number', new NumberValidator(7,100));
         $validator->addValidator('float', new FloatValidator(0,24));
         $validator->addValidator('array', new ArrayValidator());
@@ -99,22 +125,28 @@ session_start();
         </header>
         <main class="main-container"></main>
             <h2>Profile</h2>
+            <p>Hello <?= $username?>!</p>
             <p>Enter additional information about yourself:</p>
+            <!-- Форма профілю користувача  -->
             <div class="wrapperInputsContainer"> 
                 <div class="inputsContainer">
                     <form method="POST" enctype="multipart/form-data" action=''>
                         <div>
                             <label for="username">Name:</label>
                             <input type="text" id="username" name="username"  disabled required
-                                value="<?= htmlspecialchars( $_SESSION['username']) ?>" 
+                                value="<?= htmlspecialchars($username) ?>" 
+                                <?= isset($errors['username']) ? 'class="invalid"' : '' ?> 
                             />
+                            <?php if (isset($errors['username'])): ?><span class="error"><?= $errors['username'] ?></span><?php endif; ?>
                         </div>
                         <br>                    
                         <div>
                             <label for="email">E-mail:</label>
-                            <input type="email" id="email" name="email"  disabled required
-                                value="<?= htmlspecialchars($_SESSION['email']) ?>" 
+                            <input type="email" id="password" name="email" disabled required
+                                value="<?= htmlspecialchars($email) ?>" 
+                                <?= isset($errors['email']) ? 'class="invalid"' : '' ?> 
                             />
+                            <?php if (isset($errors['email'])): ?><span class="error"><?= $errors['email'] ?></span><?php endif; ?>
                         </div>
                         <br>
                         <div>

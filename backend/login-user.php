@@ -63,6 +63,11 @@
                             <label for="password">Password:</label>
                             <input type="password" id="password" name="password" required/>
                         </div>
+                        <br>
+                        <div>
+                            <input type="checkbox" id="remember" name="remember" value = "yes"/>
+                            <label for="remember">Remember Me</label>
+                        </div>
                         <div>
                             <!-- Вивід помилок -->
                             <?php

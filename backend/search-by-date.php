@@ -1,6 +1,12 @@
 <?php
-    // Редірект на  стартову сторінку index.php
+    // Редірект на  стартову сторінку
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['home'])) {
+        // Редірект на сторінку home.php (якщо Remember Me при попереднному вході на сайт)
+        if (isset($_COOKIE['user_id'])) {
+            header('Location: home.php');
+            exit();
+        } 
+        
         header('Location: /');
         exit();
     }

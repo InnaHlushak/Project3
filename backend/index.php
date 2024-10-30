@@ -1,8 +1,14 @@
 <?php
     // Редірект на сторінку login-user.php
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
-        header('Location: login-user.php');
-        exit();
+        // Редірект на сторінку home.php (якщо Remember Me при попереднному вході на сайт)
+        if (isset($_COOKIE['user_id'])) {
+            header('Location: home.php');
+            exit();
+        } else {        
+            header('Location: login-user.php');
+            exit();
+        }
     }
 
     // Редірект на сторінку search-by-date.php
