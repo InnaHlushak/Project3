@@ -1,22 +1,29 @@
 <?php
-session_start();
-    //отримання значень username i email із кукі/сесії
-    if (isset($_COOKIE['username'])) {
-        $username = $_COOKIE['username'];
-    } else {
-        $username = $_SESSION['username'] ?? '';
-    }
+    session_start();
 
-    if (isset($_COOKIE['email'])) {
-        $email = $_COOKIE['email'];
-    } else {
-        $email = $_SESSION['email'] ?? '';
-    }
- 
-    // Редірект на сторінку home.php
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['home'])) {
-        header('Location: home.php');
+    // якщо  користувач не  авторизований, то перенаправлення на login-user.php
+    if(!isset($_SESSION['user_id']) && !isset($_COOKIE['user_id'])) {
+        header("Location: login-user.php");
         exit();
+    } else {
+        //отримання значень username i email із кукі/сесії
+        if (isset($_COOKIE['username'])) {
+            $username = $_COOKIE['username'];
+        } else {
+            $username = $_SESSION['username'] ?? '';
+        }
+
+        if (isset($_COOKIE['email'])) {
+            $email = $_COOKIE['email'];
+        } else {
+            $email = $_SESSION['email'] ?? '';
+        }
+    
+        // Редірект на сторінку home.php
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['home'])) {
+            header('Location: home.php');
+            exit();
+        }
     }
 ?>
 

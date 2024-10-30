@@ -1,4 +1,12 @@
 <?php
+     session_start();
+
+    // якщо  користувач не  авторизований, то перенаправлення на index.php
+    if(!isset($_SESSION['user_id']) && !isset($_COOKIE['user_id'])) {
+        header("Location: /");
+        exit();
+    }
+
     // Редірект на сторінку form-profile-user.php
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['profile'])) {
         header('Location: profile-user.php');

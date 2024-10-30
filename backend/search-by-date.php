@@ -1,14 +1,16 @@
 <?php
-    // Редірект на  стартову сторінку
+    session_start();
+
+    // Редірект на  стартову сторінку 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['home'])) {
-        // Редірект на сторінку home.php (якщо Remember Me при попереднному вході на сайт)
-        if (isset($_COOKIE['user_id'])) {
+        // Редірект на сторінку home.php (якщо користувач авторизований)
+        if (isset($_SESSION['user_id']) || isset($_COOKIE['user_id'])) {
             header('Location: home.php');
             exit();
-        } 
-        
-        header('Location: /');
-        exit();
+        } else {
+            header('Location: /');
+            exit();
+        }
     }
 ?>
 
